@@ -1,3 +1,55 @@
 - name: debug
   debug:
     msg: "jeste namede"
+
+- block:
+  - name: install named
+    yum:
+      name: bind
+      state: installed
+
+  - name: create zones directory
+    file:
+      path: /var/named/zones
+      state: directory
+    become_user: named
+
+  - name: copy named.conf
+    template:
+      src: named.conf
+      dest: /etc/named.conf
+    notify: restart named
+
+  - name: copy zone file
+    template:
+      src: zone.conf
+      dest: "/var/named/zones/{{zone.key}}.zone"
+    loop: "{{app.value.named.configs.zones|dict2items}}"
+    when: zone.value.type != "forward"
+    loop_control:
+      loop_var: zone
+    notify: restart named
+
+
+  - name: deb
+    vars:
+      ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',')}}"
+    debug:
+      msg: "{{ports}}"
+    loop: "{{['ipv4','ipv6']|product(['tcp','udp'])|list}}"
+
+  - name: allow ports on selinux
+    vars:
+      ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',')}}"
+    seport:
+      ports: "{{ports}}"
+      proto: "{{item[1]}}"
+      setype: dns_port_t
+      state: present
+    loop: "{{['ipv4','ipv6']|product(['tcp','udp'])|list}}"
+    when: ports|length
+
+  - name: run handlers
+    meta: flush_handlers
+  become: True
+  become_user: root
