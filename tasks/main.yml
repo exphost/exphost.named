@@ -51,5 +51,11 @@
 
   - name: run handlers
     meta: flush_handlers
+
+  - name: start and enable named
+    service:
+      name: named
+      state: started
+      enabled: True
   become: True
   become_user: root
