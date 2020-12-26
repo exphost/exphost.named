@@ -39,6 +39,7 @@ inventory['all'] = {'hosts': []}
 
 for domain in conn.listAllDomains():
 
+    hostname = domain.name()
     try:
         metadata = (domain.metadata(type=0, uri=None)).split("\n")
         this_cluster = False
@@ -46,16 +47,19 @@ for domain in conn.listAllDomains():
             if desc.startswith("cluster:"):
                 if desc.split("cluster:")[1].strip() == CLUSTER_NAME:
                     this_cluster = True
-        
+            if desc.startswith("hostname:"):
+                hostname = desc.split("hostname:")[1].strip()
         if not this_cluster:
             continue
     except libvirt.libvirtError:
         continue
-    
+
+    hostname = hostname.replace("_","-")
+
     if STATE_MASK and not domain.state()[0] in STATE_MASK:
         continue
 
-    inventory['all']['hosts'].append(domain.name())
+    inventory['all']['hosts'].append(hostname)
 
     try:
         addresses = domain.interfaceAddresses(1)
@@ -64,8 +68,8 @@ for domain in conn.listAllDomains():
         if "_meta" not in inventory:
             inventory['_meta'] = {'hostvars': {}}
         if domain not in inventory['_meta']['hostvars']:
-            inventory["_meta"]['hostvars'][domain.name()] = {}
-        inventory['_meta']['hostvars'][domain.name()]['ansible_host'] = ip_address
+            inventory["_meta"]['hostvars'][hostname] = {}
+        inventory['_meta']['hostvars'][hostname]['ansible_host'] = ip_address
     except libvirt.libvirtError:
         pass
 
@@ -77,7 +81,7 @@ for domain in conn.listAllDomains():
                 for role in roles:
                     if role not in inventory:
                         inventory[role] = {'hosts': []}
-                    inventory[role]['hosts'].append(domain.name())
+                    inventory[role]['hosts'].append(hostname)
                         
     except libvirt.libvirtError:
         pass
