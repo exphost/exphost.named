@@ -14,5 +14,4 @@ galaxy_info:
     - fabsible
     - named
 
-allow_duplicates: True
-
+allow_duplicates: true

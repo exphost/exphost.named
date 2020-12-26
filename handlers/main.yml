@@ -1,5 +1,6 @@
+---
 - name: restart named
   service:
     name: named
     state: restarted
-  become: True
+  become: true
