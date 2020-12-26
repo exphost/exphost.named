@@ -1,0 +1,4 @@
+apps_dummy:
+  dummy_app:
+    endpoints:
+      port: 1234

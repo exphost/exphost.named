@@ -1,0 +1,40 @@
+apps_named:
+  named:
+    priority: 2
+    named:
+      type: exphost.named
+      enabled: True
+      configs:
+        forwarders:
+          - 192.168.0.1
+        listen:
+          ipv4:
+            ports:
+              53:
+                addresses:
+                  - any
+              5553:
+                addresses:
+                  - any
+        zones:
+          some.example.domain.xyz:
+            type: master
+            map_inventory: true
+          other.example.domain.xyz:
+            type: forward
+            forwarders_app:
+              - dummy_app
+              - endpoints
+              - port
+          next.example.domain.xyz:
+            type: master
+            records:
+              rec1:
+                - type: "A"
+                  value: "1.2.3.4"
+              rec2:
+                - type: "CNAME"
+                  value: "alias"
+              rec3:
+                - type: "CNAME"
+                  value: "wp.pl."

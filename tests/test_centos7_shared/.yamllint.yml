@@ -1,0 +1,6 @@
+extends: default
+ignore: |
+  tests/
+rules:
+  line-length:
+    max: 120
