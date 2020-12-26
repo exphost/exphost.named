@@ -10,6 +10,7 @@ galaxy_info:
     - name: el
       versions:
         - 7
+        - 8
   galaxy_tags:
     - fabsible
     - named
