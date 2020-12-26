@@ -13,19 +13,24 @@
       file:
         path: /var/named/zones
         state: directory
-      become_user: named
+        owner: named
+        mode: 0755
 
     - name: copy named.conf
       template:
         src: named.conf
         dest: /etc/named.conf
+        mode: 0640
+        owner: named
       notify: restart named
 
     - name: copy zone file
       template:
         src: zone.conf
-        dest: "/var/named/zones/{{zone.key}}.zone"
-      loop: "{{app.value.named.configs.zones|dict2items}}"
+        dest: "/var/named/zones/{{ zone.key }}.zone"
+        mode: 0640
+        owner: named
+      loop: "{{ app.value.named.configs.zones|dict2items }}"
       when: zone.value.type != "forward"
       loop_control:
         loop_var: zone
@@ -34,20 +39,20 @@
 
     - name: deb
       vars:
-        ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',')}}"
+        ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',') }}"
       debug:
-        msg: "{{ports}}"
-      loop: "{{['ipv4','ipv6']|product(['tcp','udp'])|list}}"
+        msg: "{{ ports }}"
+      loop: "{{ ['ipv4','ipv6']|product(['tcp','udp'])|list }}"
 
     - name: allow ports on selinux
       vars:
-        ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',')}}"
+        ports: "{{ app.value.named.configs.listen[item[0]].ports|default([])|list|join(',') }}"
       seport:
-        ports: "{{ports}}"
-        proto: "{{item[1]}}"
+        ports: "{{ ports }}"
+        proto: "{{ item[1] }}"
         setype: dns_port_t
         state: present
-      loop: "{{['ipv4','ipv6']|product(['tcp','udp'])|list}}"
+      loop: "{{ ['ipv4','ipv6']|product(['tcp','udp'])|list }}"
       when: ports|length
 
     - name: run handlers
