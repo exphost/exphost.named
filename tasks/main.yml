@@ -6,7 +6,9 @@
 - block:
     - name: install named
       yum:
-        name: bind
+        name:
+          - bind
+          - bind-utils
         state: installed
 
     - name: create zones directory

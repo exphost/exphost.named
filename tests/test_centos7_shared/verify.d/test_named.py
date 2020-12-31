@@ -2,26 +2,12 @@ def test_named_process(host):
     assert host.service("named").is_running
     assert host.service("named").is_enabled
 def test_groups_mapping_responses(host):
-    host.ansible(
-        "command",
-        "yum install -y bind-utils",
-    become=True,
-    check=False,
-    )
-
     assert host.check_output("dig @127.0.0.1 test.some.example.domain.xyz +short")
     assert host.check_output("dig @127.0.0.1 role1.some.example.domain.xyz +short")
     assert host.check_output("dig @127.0.0.1 role2.some.example.domain.xyz +short")
     assert not host.check_output("dig @127.0.0.1 test2.some.example.domain.xyz +short")
 
 def test_records_responses(host):
-    host.ansible(
-        "command",
-        "yum install -y bind-utils",
-    become=True,
-    check=False,
-    )
-
     assert host.check_output("dig @127.0.0.1 rec1.next.example.domain.xyz +short") == "1.2.3.4"
     assert host.check_output("dig @127.0.0.1 rec1.next.example.domain.xyz +short") != "1.2.3.5"
 
@@ -43,12 +29,29 @@ def test_forwarders_configuration(host):
       check=False,
     )["stdout"]
 def test_ports_responses(host):
-    host.ansible(
-        "command",
-        "yum install -y bind-utils",
-    become=True,
-    check=False,
-    )
     assert host.check_output("dig @127.0.0.1 test.some.example.domain.xyz +short")
     assert host.check_output("dig @127.0.0.1 -p 5553 test.some.example.domain.xyz +short")
     assert host.run("dig @127.0.0.1 -p 5554 test.some.example.domain.xyz +short +timeout=1").failed
+
+def test_check_nsupdate(host):
+    host.ansible(
+      "shell",
+      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -l",
+      become=True,
+      check=False,
+      )
+    assert not host.check_output("dig @127.0.0.1 dyn.some.example.domain.xyz TXT +short")
+    host.ansible(
+      "shell",
+      r"echo -e 'update add dyn.some.example.domain.xyz 86400 TXT testing\nsend' | nsupdate -l",
+      become=True,
+      check=False,
+      )
+    assert host.check_output("dig @127.0.0.1 dyn.some.example.domain.xyz TXT +short") == '"testing"'
+    host.ansible(
+      "shell",
+      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -l",
+      become=True,
+      check=False,
+      )
+    assert not host.check_output("dig @127.0.0.1 dyn.some.example.domain.xyz TXT +short")
