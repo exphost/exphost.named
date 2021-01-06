@@ -3,3 +3,5 @@ roles:
     version: v1.3.0
   - name: exphost.create_user
     version: v1.1.3
+  - name: exphost.resolv
+    version: v1.1.1

@@ -1,0 +1,8 @@
+apps_resolv:
+  resolv:
+    priority: 3
+    resolv:
+      type: exphost.resolv
+      enabled: True
+      addresses:
+        from_app: named

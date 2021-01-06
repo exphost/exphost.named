@@ -18,6 +18,29 @@
         owner: named
         mode: 0755
 
+    - name: create dnssec key
+      command: dnssec-keygen -a HMAC-MD5 -b 512 -n HOST ansible
+      args:
+        chdir: /var/named
+        creates: "Kansible*"
+      register: _dnsseckey
+
+    - name: symlink keys
+      file:
+        src: "/var/named/{{ _dnsseckey.stdout }}.{{ item }}"
+        dest: "/var/named/Kansible.{{ item }}"
+        state: link
+      loop:
+        - key
+        - private
+      when: _dnsseckey.changed
+
+    - name: read the dnsseckey
+      shell: "grep Key: /var/named/Kansible.private|awk '{print $2}'"
+      register: _dnsseckey_value
+      check_mode: false
+      changed_when: false
+
     - name: copy named.conf
       template:
         src: named.conf

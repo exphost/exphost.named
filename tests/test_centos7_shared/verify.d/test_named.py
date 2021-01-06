@@ -34,23 +34,30 @@ def test_ports_responses(host):
     assert host.run("dig @127.0.0.1 -p 5554 test.some.example.domain.xyz +short +timeout=1").failed
 
 def test_check_nsupdate(host):
+    key = host.ansible(
+      "shell",
+      r"grep Key: /var/named/Kansible.private|awk '{print $2}'",
+      become=True,
+      check=False,
+      )["stdout"]
+
     host.ansible(
       "shell",
-      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -l",
+      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -y ansible:{key}".format(key=key),
       become=True,
       check=False,
       )
     assert not host.check_output("dig @127.0.0.1 dyn.some.example.domain.xyz TXT +short")
     host.ansible(
       "shell",
-      r"echo -e 'update add dyn.some.example.domain.xyz 86400 TXT testing\nsend' | nsupdate -l",
+      r"echo -e 'update add dyn.some.example.domain.xyz 86400 TXT testing\nsend' | nsupdate -y ansible:{key}".format(key=key),
       become=True,
       check=False,
       )
     assert host.check_output("dig @127.0.0.1 dyn.some.example.domain.xyz TXT +short") == '"testing"'
     host.ansible(
       "shell",
-      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -l",
+      r"echo -e 'update delete dyn.some.example.domain.xyz\nsend' | nsupdate -y ansible:{key}".format(key=key),
       become=True,
       check=False,
       )
