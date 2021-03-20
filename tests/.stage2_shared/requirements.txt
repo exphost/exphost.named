@@ -11,7 +11,7 @@ fabsible==0.1.1
 flake8==3.8.4
 importlib-metadata==2.0.0
 iniconfig==1.1.1
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.10.0
 libvirt-python==6.9.0
 MarkupSafe==1.1.1
