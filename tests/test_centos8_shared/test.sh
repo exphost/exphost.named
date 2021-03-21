@@ -56,6 +56,15 @@ fi
 if [ "$STEP" == "verify" ] || [ "$STEP" == "all" ]; then
 [ $LIST -eq 1 ] && echo verify || bash -c "source venv/bin/activate && ./verify.sh"
 fi
+if [ "$STEP" == "reboot" ] || [ "$STEP" == "all" ]; then
+[ $LIST -eq 1 ] && echo reboot || bash -c "source venv/bin/activate && ./reboot.sh"
+fi
+if [ "$STEP" == "idempotency2" ] || [ "$STEP" == "all" ]; then
+[ $LIST -eq 1 ] && echo idempotency2 || bash -c "source venv/bin/activate && ./idempotency.sh"
+fi
+if [ "$STEP" == "verify2" ] || [ "$STEP" == "all" ]; then
+[ $LIST -eq 1 ] && echo verify2 || bash -c "source venv/bin/activate && ./verify.sh"
+fi
 if [ "$STEP" == "destroy" ] || [ "$STEP" == "all" ]; then
 [ $LIST -eq 1 ] && echo destroy || ./destroy.sh
 fi

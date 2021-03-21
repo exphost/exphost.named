@@ -7,7 +7,7 @@ cffi==1.14.3
 colorama==0.4.4
 commonmark==0.9.1
 cryptography==3.2.1
-fabsible==0.1.1
+fabsible==0.1.4
 flake8==3.8.4
 importlib-metadata==2.0.0
 iniconfig==1.1.1

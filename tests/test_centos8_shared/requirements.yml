@@ -1,7 +1,7 @@
 roles:
   - name: exphost.instances_libvirt
-    version: v1.3.0
+    version: v1.4.1
   - name: exphost.create_user
     version: v1.1.3
   - name: exphost.resolv
-    version: v1.1.1
+    version: v1.1.2
